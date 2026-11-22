@@ -1,0 +1,180 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --bg: #f8f4fd;
+  --bg-soft: #efe6fb;
+  --card: rgba(255, 255, 255, 0.62);
+  --border: rgba(124, 92, 214, 0.18);
+  --fg: #2b2242;
+  --muted: #6c6088;
+  --accent: #7c5cd6;
+  --accent-2: #c07ee8;
+  --accent-soft: #e8ddfb;
+  --blob-1: #d9c8ff;
+  --blob-2: #f6d3f0;
+  --blob-3: #c9d6ff;
+}
+
+.dark {
+  --bg: #0d0a15;
+  --bg-soft: #161125;
+  --card: rgba(28, 21, 46, 0.55);
+  --border: rgba(206, 190, 255, 0.13);
+  --fg: #eee8f8;
+  --muted: #a99dc4;
+  --accent: #c9b6ff;
+  --accent-2: #f2c4ff;
+  --accent-soft: #261d3d;
+  --blob-1: #3b2a6b;
+  --blob-2: #4a2350;
+  --blob-3: #1f2d5c;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-soft: var(--bg-soft);
+  --color-card: var(--card);
+  --color-line: var(--border);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
+  --color-accent-soft: var(--accent-soft);
+  --font-display: var(--font-cormorant), "Cormorant Garamond", serif;
+  --font-sans: var(--font-jost), system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+  overflow-x: hidden; /* fallback for browsers without `clip` (older Safari) */
+  overflow-x: clip;
+  width: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  transition: background-color 0.5s ease, color 0.5s ease;
+  overflow-x: clip;
+  width: 100%;
+  max-width: 100vw;
+}
+
+img, canvas, svg, video { max-width: 100%; }
+/* Long words, emails and URLs wrap instead of pushing the page wider */
+p, h1, h2, h3, li, a, figcaption, code { overflow-wrap: anywhere; }
+h1 { overflow-wrap: normal; }
+
+::selection {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+/* Dreamy drifting background */
+.dream-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+/* Soft radial gradients instead of filter: blur() — same look, no per-frame blur cost.
+   Only transform is animated, which the GPU composites cheaply. */
+.dream-bg span {
+  position: absolute;
+  border-radius: 9999px;
+  opacity: 0.75;
+  will-change: transform;
+  animation: drift 30s ease-in-out infinite alternate;
+}
+.dream-bg span:nth-child(1) { width: 70vmax; height: 70vmax; left: -25vmax; top: -25vmax; background: radial-gradient(circle, var(--blob-1) 0%, transparent 65%); }
+.dream-bg span:nth-child(2) { width: 60vmax; height: 60vmax; right: -25vmax; top: 15vh; background: radial-gradient(circle, var(--blob-2) 0%, transparent 65%); animation-delay: -10s; }
+.dream-bg span:nth-child(3) { width: 65vmax; height: 65vmax; left: 5vw; bottom: -35vmax; background: radial-gradient(circle, var(--blob-3) 0%, transparent 65%); animation-delay: -20s; }
+.dream-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+@keyframes drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(6vw, 4vh, 0) scale(1.12); }
+}
+
+/* Frosted glass. Backdrop blur is costly over animated content, so phones get
+   a slightly more opaque card without blur instead. */
+.glass {
+  background: color-mix(in srgb, var(--bg-soft) 82%, transparent);
+  border: 1px solid var(--border);
+}
+@media (min-width: 768px) and (pointer: fine) {
+  .glass {
+    background: var(--card);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}
+
+.text-shimmer {
+  background: linear-gradient(100deg, var(--fg) 20%, var(--accent) 45%, var(--accent-2) 55%, var(--fg) 80%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 9s ease-in-out 2; /* plays twice, then rests (no endless repaint) */
+}
+@keyframes shimmer {
+  0%, 100% { background-position: 100% 0; }
+  50% { background-position: 0% 0; }
+}
+
+/* ── Mandala (hand-drawn, used as a tintable mask) ─────────────── */
+@property --sweep {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 360deg;
+}
+.mandala-art {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(140deg, var(--accent) 10%, var(--accent-2) 60%, var(--accent) 95%);
+  -webkit-mask: url("/images/mandala-mask.webp") center / contain no-repeat;
+  mask: url("/images/mandala-mask.webp") center / contain no-repeat;
+}
+.mandala-spin {
+  will-change: transform;
+  animation: mandala-spin 160s linear infinite;
+}
+.mandala-draw {
+  --sweep: 0deg;
+  -webkit-mask-image: conic-gradient(from -90deg, #000 var(--sweep), transparent calc(var(--sweep) + 1deg));
+  mask-image: conic-gradient(from -90deg, #000 var(--sweep), transparent calc(var(--sweep) + 1deg));
+  animation: mandala-sweep 3.4s cubic-bezier(0.55, 0.1, 0.3, 1) 0.3s forwards;
+}
+@keyframes mandala-spin { to { transform: rotate(360deg); } }
+@keyframes mandala-sweep { to { --sweep: 360deg; } }
+
+.font-mono-ui { font-family: ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace; }
+
+.diagram-label {
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+  text-align: center;
+  font-family: var(--font-sans);
+  color: var(--fg);
+  transition: opacity 0.3s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
