@@ -7,7 +7,12 @@ const shell = (inner: string) => `<!doctype html><html><body style="margin:0;bac
 <p style="text-align:center;font-size:12px;color:#8a7fa8;margin-top:16px">Sent from your portfolio contact form</p>
 </div></body></html>`;
 
+/** Single-line text for headers: no line breaks or control characters. */
+// eslint-disable-next-line no-control-regex
+const oneLine = (s: string) => s.replace(/[\u0000-\u001f\u007f]+/g, " ").trim();
+
 export function notificationEmail(d: { name: string; email: string; subject: string; message: string; ip: string }) {
+  d = { ...d, name: oneLine(d.name), subject: oneLine(d.subject) };
   const subject = d.subject || "New message from your portfolio";
   const html = shell(`
 <p style="font-size:12px;letter-spacing:3px;text-transform:uppercase;color:#7c5cd6;margin:0">New message</p>
